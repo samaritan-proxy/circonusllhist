@@ -301,8 +301,8 @@ func TestApproxCountBelow(t *testing.T) {
 		err := h.RecordValue(rnd.Float64() * 10)
 		if err != nil {
 			t.Error(err)
+			return
 		}
-		return
 	}
 	if count := h.ApproxCountBelow(10); count != 1000 {
 		t.Errorf("expect %v, but got %v", 1000, count)
@@ -320,8 +320,8 @@ func TestApproxCountAbove(t *testing.T) {
 		err := h.RecordValue(rnd.Float64() * 10)
 		if err != nil {
 			t.Error(err)
+			return
 		}
-		return
 	}
 	if count := h.ApproxCountAbove(10); count != 0 {
 		t.Errorf("expect %v, but got %v", 0, count)
