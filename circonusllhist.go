@@ -934,10 +934,61 @@ func (h *Histogram) SampleCount() uint64 {
 		h.mutex.Lock()
 		defer h.mutex.Unlock()
 	}
+	return h.sampleCount()
+}
+
+func (h *Histogram) sampleCount() uint64 {
+	var count uint64
+	for i := uint16(0); i < h.used; i++ {
+		count += h.bvs[i].count
+	}
+	return count
+}
+
+// ApproxCountBelow returns the number of values in buckets that are
+// entirely lower than or eqaul to threshold.
+func (h *Histogram) ApproxCountBelow(threshold float64) uint64 {
+	if h.useLocks {
+		h.mutex.Lock()
+		defer h.mutex.Unlock()
+	}
 
 	var count uint64
-	for _, b := range h.bvs {
+	for i := uint16(0); i < h.used; i++ {
+		b := h.bvs[i]
+		if b.isNaN() {
+			continue
+		}
+
+		lower := b.left()
+		if lower > threshold {
+			break
+		}
 		count += b.count
+	}
+	return count
+}
+
+// ApproxCountAbove returns the number of values in buckets that are
+// entirely larger than or eqaul to threshold.
+func (h *Histogram) ApproxCountAbove(threshold float64) uint64 {
+	if h.useLocks {
+		h.mutex.Lock()
+		defer h.mutex.Unlock()
+	}
+
+	count := h.sampleCount()
+	for i := uint16(0); i < h.used; i++ {
+		b := h.bvs[i]
+		if b.isNaN() {
+			continue
+		}
+
+		lower := b.left()
+		if lower >= threshold {
+			break
+		}
+		count -= b.count
 	}
 	return count
 }

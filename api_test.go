@@ -292,3 +292,41 @@ func TestSampleCount(t *testing.T) {
 		t.Errorf("expect sample count: %v, but got: %v", expect, count)
 	}
 }
+
+func TestApproxCountBelow(t *testing.T) {
+	h := hist.New()
+	src := rand.NewSource(time.Now().UnixNano())
+	rnd := rand.New(src)
+	for i := 0; i < 1000; i++ {
+		err := h.RecordValue(rnd.Float64() * 10)
+		if err != nil {
+			t.Error(err)
+		}
+		return
+	}
+	if count := h.ApproxCountBelow(10); count != 1000 {
+		t.Errorf("expect %v, but got %v", 1000, count)
+	}
+	if count := h.ApproxCountBelow(0); count != 0 {
+		t.Errorf("expect %v, but got %v", 0, count)
+	}
+}
+
+func TestApproxCountAbove(t *testing.T) {
+	h := hist.New()
+	src := rand.NewSource(time.Now().UnixNano())
+	rnd := rand.New(src)
+	for i := 0; i < 1000; i++ {
+		err := h.RecordValue(rnd.Float64() * 10)
+		if err != nil {
+			t.Error(err)
+		}
+		return
+	}
+	if count := h.ApproxCountAbove(10); count != 0 {
+		t.Errorf("expect %v, but got %v", 0, count)
+	}
+	if count := h.ApproxCountAbove(-1); count != 1000 {
+		t.Errorf("expect %v, but got %v", 1000, count)
+	}
+}
