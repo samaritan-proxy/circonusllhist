@@ -281,7 +281,10 @@ func TestMerge(t *testing.T) {
 func TestSampleCount(t *testing.T) {
 	h := hist.New()
 	for i := 0; i < 100; i++ {
-		h.RecordValues(1, int64(i))
+		if err := h.RecordValues(1, int64(i)); err != nil {
+			t.Error(err)
+			return
+		}
 	}
 	count := h.SampleCount()
 	expect := uint64(4950)
