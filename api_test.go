@@ -277,3 +277,18 @@ func TestMerge(t *testing.T) {
 		t.Error("Expected histograms to be equivalent")
 	}
 }
+
+func TestSampleCount(t *testing.T) {
+	h := hist.New()
+	for i := 0; i < 100; i++ {
+		if err := h.RecordValues(1, int64(i)); err != nil {
+			t.Error(err)
+			return
+		}
+	}
+	count := h.SampleCount()
+	expect := uint64(4950)
+	if count != expect {
+		t.Errorf("expect sample count: %v, but got: %v", expect, count)
+	}
+}

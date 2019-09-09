@@ -927,3 +927,17 @@ func (h *Histogram) Merge(o *Histogram) {
 		h.insertBin(&b, int64(b.count))
 	}
 }
+
+// SampleCount returns the total number of values stored in histogram.
+func (h *Histogram) SampleCount() uint64 {
+	if h.useLocks {
+		h.mutex.Lock()
+		defer h.mutex.Unlock()
+	}
+
+	var count uint64
+	for _, b := range h.bvs {
+		count += b.count
+	}
+	return count
+}
